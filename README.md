@@ -45,7 +45,7 @@ cd vaultflow
 Always run docker-compose from project root:
 
 ```bash
-docker-compose -f docker/docker-compose.yml up -d
+docker-compose -f docker/docker-compose.yml --env-file .env up -d
 ```
 
 Running from inside `docker/` folder will cause `.env` not found error.

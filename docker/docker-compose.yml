@@ -1,7 +1,7 @@
 services:
   postgres:
     env_file:
-        - ../.env
+        - ${PWD}/.env
     image: postgres:15
     container_name: retailflow_postgres
     environment:
@@ -23,7 +23,7 @@ services:
     image: dpage/pgadmin4
     container_name: retailflow_pgadmin
     env_file:
-      - ../.env
+      - ${PWD}/.env
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
