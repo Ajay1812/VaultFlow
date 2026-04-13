@@ -1,0 +1,13 @@
+{
+"Servers": {
+    "1": {
+    "Name": "YourProjectName",
+    "Group": "Servers",
+    "Host": "your_postgres_container_name",
+    "Port": 5432,
+    "MaintenanceDB": "your_db_name",
+    "Username": "your_username",
+    "SSLMode": "prefer"
+    }
+    }
+}
