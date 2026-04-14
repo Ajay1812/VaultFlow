@@ -12,3 +12,6 @@ logs/
 .env
 
 docker/servers.json
+
+target/
+dbt_packages/
