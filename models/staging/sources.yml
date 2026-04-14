@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: retail_db
+    schema: public
+    tables:
+      - name: fact_orders
+      - name: dim_customers
+      - name: dim_locations
+      - name: dim_products
+      - name: dim_dates

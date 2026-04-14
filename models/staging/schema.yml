@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: stg_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        tests:
+          - not_null
+
+      - name: status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Delivered", "Returned", "Pending"]
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+      - name: segment
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Retail", "Wholesale", "Online"]
+  - name: stg_dates
+    columns:
+      - name: date_id
+        tests:
+          - unique
+  - name: stg_locations
+    columns:
+      - name: location_id
+        tests:
+          - unique
+          - not_null
+      - name: region
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["North", "South", "East", "West"]
+  - name: stg_products
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+      - name: category
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["Electronics", "Clothing"]
