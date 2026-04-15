@@ -1,2 +1,2 @@
 -- stg_dates.sql
-SELECT * FROM {{ source('retail_db', 'dim_dates') }}
+SELECT * FROM {{ source('vault_db', 'dim_dates') }}

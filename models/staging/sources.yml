@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: retail_db
+  - name: vault_db
     schema: public
     tables:
       - name: fact_orders

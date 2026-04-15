@@ -1,2 +1,2 @@
 -- stg_locations.sql
-SELECT * FROM {{ source('retail_db', 'dim_locations') }}
+SELECT * FROM {{ source('vault_db', 'dim_locations') }}
