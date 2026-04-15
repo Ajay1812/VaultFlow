@@ -41,6 +41,8 @@ cp docker/servers.json.example docker/servers.json
 
 ```bash
 # Always run from project root!
+# docker-compose -f docker/docker-compose.yml --env-file .env down
+# docker-compose -f docker/docker-compose.yml build --no-cache
 docker-compose -f docker/docker-compose.yml --env-file .env up -d
 ```
 
@@ -78,6 +80,12 @@ uv run dbt docs serve --port 9000
 http://localhost:8080
 ```
 
+### 7. Airflow UI
+
+```bash
+http://localhost:8081
+```
+
 ---
 
 ## 📊 Data Model
@@ -108,7 +116,7 @@ http://localhost:8080
 - [x] OOPs data pipeline + logging
 - [x] Docker setup
 - [x] dbt models + tests + lineage
-- [ ] Airflow orchestration
+- [x] Airflow orchestration
 - [ ] AWS S3 + Athena
 - [ ] Kafka streaming
 - [ ] Terraform IaC

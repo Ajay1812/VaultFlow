@@ -1,0 +1,2 @@
+CREATE DATABASE vault_db;
+CREATE DATABASE airflow;

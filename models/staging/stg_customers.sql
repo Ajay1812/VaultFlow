@@ -1,2 +1,2 @@
 -- stg_customers.sql
-SELECT * FROM {{ source('retail_db', 'dim_customers') }}
+SELECT * FROM {{ source('vault_db', 'dim_customers') }}
