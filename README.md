@@ -3,6 +3,7 @@
 An end-to-end data engineering project simulating a real-world retail pipeline.
 
 ---
+<img width="1920" height="1080" alt="1776342899592966893" src="https://github.com/user-attachments/assets/29b19486-e7e0-4eba-bf55-5a93866af85f" />
 
 ## 🏗️ Architecture
 
@@ -20,7 +21,7 @@ Raw Data → PostgreSQL → dbt → Airflow → AWS S3 → Analytics
 | Containerization | Docker          | ✅     |
 | Data Generation  | Python + Faker  | ✅     |
 | Transformation   | dbt             | ✅     |
-| Orchestration    | Airflow         | 🔄     |
+| Orchestration    | Airflow         | ✅     |
 | Cloud            | AWS S3 + Athena | 🔄     |
 | Streaming        | Kafka           | 🔄     |
 
