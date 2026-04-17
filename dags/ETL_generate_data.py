@@ -3,12 +3,23 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from scripts.pipelines.task import load_locations, load_dates, load_products, load_customers, load_orders
 
+def task_failure_alert(context):
+    task_instance = context['task_instance']
+    dag_id = context['dag'].dag_id
+    
+    print(f"""
+    DAG Failed!
+    DAG: {dag_id}
+    Task: {task_instance.task_id}
+    Execution Time: {context['execution_date']}
+    """)
 
 default_args = {
     'owner' : 'nf_01',
     "start_date" : datetime(2025, 3, 16),
-    'retries' : 1,
+    'retries' : 2,
     'retry_delay': timedelta(minutes=5),
+    'on_failure_callback': task_failure_alert,
 }
 
 dag = DAG(
@@ -22,38 +33,43 @@ dag = DAG(
 generating_location = PythonOperator(
     task_id="generating_location_ids",
     python_callable=load_locations,
+    op_kwargs={'count': 50},
+    sla=timedelta(minutes=5),
     dag=dag
 )
 
 generating_dates = PythonOperator(
     task_id="generating_date_ids",
     python_callable=load_dates,
+    op_kwargs={'count': 50},
+    sla=timedelta(minutes=5),
     dag=dag
 )
 
 generating_products = PythonOperator(
     task_id="generating_product_ids",
     python_callable=load_products,
+    op_kwargs={'count': 20},
+    sla=timedelta(minutes=5),
     dag=dag
 )
 
 generating_customers = PythonOperator(
     task_id='generating_customer_ids',
     python_callable=load_customers,
-    op_kwargs={
-        "location_ids": "{{ ti.xcom_pull(task_ids='generating_location_ids') }}"
-    },
+    op_kwargs={'count': 50},
+    provide_context=True,
+    sla=timedelta(minutes=10),
+    dag=dag
 )
 
 generating_orders = PythonOperator(
     task_id='generating_orders',
     python_callable=load_orders,
-    op_kwargs={
-        "customer_ids": "{{ ti.xcom_pull(task_ids='generating_customer_ids') }}",
-        "date_ids": "{{ ti.xcom_pull(task_ids='generating_date_ids') }}",
-        "product_ids_with_prices": "{{ ti.xcom_pull(task_ids='generating_product_ids') }}",
-        "location_ids": "{{ ti.xcom_pull(task_ids='generating_location_ids') }}"
-    },
+    op_kwargs={'count': 100},
+    provide_context=True,
+    sla=timedelta(minutes=15),
+    dag=dag
 )
 
-generating_location >> generating_dates >> generating_products >> generating_customers >> generating_orders
+[generating_location, generating_dates, generating_products] >> generating_customers >> generating_orders

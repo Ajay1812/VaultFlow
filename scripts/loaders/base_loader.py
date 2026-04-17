@@ -11,9 +11,6 @@ class BaseLoader:
         if not self.table_name:
             raise NotImplementedError("Subclass must define table_name")
         
-        if not self.table_name:
-            raise NotImplementedError("Subclass must define table_name")
-        
         # Dynamically build INSERT SQL
         columns = ', '.join(data.keys())  # 'city, state, region, pincode'
         placeholders = ', '.join(['%s'] * len(data))  # '%s, %s, %s, %s'
