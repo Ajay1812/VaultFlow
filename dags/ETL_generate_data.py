@@ -2,17 +2,8 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from scripts.pipelines.task import load_locations, load_dates, load_products, load_customers, load_orders
+from scripts.pipelines.task_failure import task_failure_alert
 
-def task_failure_alert(context):
-    task_instance = context['task_instance']
-    dag_id = context['dag'].dag_id
-    
-    print(f"""
-    DAG Failed!
-    DAG: {dag_id}
-    Task: {task_instance.task_id}
-    Execution Time: {context['execution_date']}
-    """)
 
 default_args = {
     'owner' : 'nf_01',
