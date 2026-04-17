@@ -8,11 +8,12 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      TZ: Asia/Kolkata 
     ports:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../sql/schema.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
