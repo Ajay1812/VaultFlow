@@ -64,10 +64,12 @@ services:
       AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
       PYTHONPATH: /opt/airflow
+      PATH: /home/airflow/.local/bin:/usr/local/bin:/usr/bin:/bin
     volumes:
       - ../dags:/opt/airflow/dags
       - ../scripts:/opt/airflow/scripts
       - ../logs:/opt/airflow/logs
+      - ../dbt:/opt/airflow/dbt  
     ports:
       - "8081:8080"
     command: webserver
@@ -91,10 +93,12 @@ services:
       AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
       AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${AIRFLOW_USER}:${AIRFLOW_PASSWORD}@postgres:5432/${AIRFLOW_DB}
       PYTHONPATH: /opt/airflow
+      PATH: /home/airflow/.local/bin:/usr/local/bin:/usr/bin:/bin
     volumes:
       - ../dags:/opt/airflow/dags
       - ../scripts:/opt/airflow/scripts
       - ../logs:/opt/airflow/logs
+      - ../dbt:/opt/airflow/dbt  
     command: scheduler
     restart: always
 
@@ -116,11 +120,13 @@ services:
       AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
       AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${AIRFLOW_USER}:${AIRFLOW_PASSWORD}@postgres:5432/${AIRFLOW_DB}
       PYTHONPATH: /opt/airflow
+      PATH: /home/airflow/.local/bin:/usr/local/bin:/usr/bin:/bin
     hostname: airflow-worker
     volumes:
       - ../dags:/opt/airflow/dags
       - ../scripts:/opt/airflow/scripts
       - ../logs:/opt/airflow/logs
+      - ../dbt:/opt/airflow/dbt  
     command: airflow celery worker -H worker@%h
     restart: always
 

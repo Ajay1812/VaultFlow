@@ -1,3 +1,4 @@
+from scripts.aws.s3export import S3DataLakeWriter
 from scripts.core.connection import Connection
 from scripts.core.logger import Logger 
 from scripts.data_generators.locations import LocationGenerator
@@ -10,6 +11,7 @@ from scripts.loaders.date import DateLoader
 from scripts.loaders.product import ProductLoader
 from scripts.loaders.customer import CustomerLoader
 from scripts.loaders.order import OrderLoader
+import pandas as pd
 
 def load_locations(count=5):
     logger = Logger()
@@ -152,4 +154,28 @@ def load_orders(count=10, **context):
     finally:
         if conn:
             conn.close()
+
+def export_csv_s3(table_name, **context):
+    logger = Logger()
+    logger.info(f'Starting exporting data to s3: {table_name}')
+    
+    db = None
+    engine = None
+    try:
+        db = Connection(logger)
+        engine = db.get_engine()
         
+        query = f"SELECT * FROM public.{table_name}"
+        df = pd.read_sql(query, engine)
+        s3 = S3DataLakeWriter()
+        result = s3.write_dataframe(df, table_name)
+        logger.info(f'Completed exporting to s3: {table_name}')
+        return result
+    
+    except Exception as e:
+        logger.error('export_csv_s3 failed', e)
+        raise
+
+    finally:
+        if engine:
+            engine.dispose()

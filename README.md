@@ -1,129 +1,147 @@
-# VaultFlow 🚀
+# VaultFlow
 
-An end-to-end data engineering project simulating a real-world retail pipeline.
+VaultFlow is an end-to-end retail data engineering project using PostgreSQL, dbt, Airflow, and AWS S3.
 
----
-<img width="1920" height="1080" alt="1776342899592966893" src="https://github.com/user-attachments/assets/29b19486-e7e0-4eba-bf55-5a93866af85f" />
+## Architecture
 
-## 🏗️ Architecture
+`Synthetic Data -> PostgreSQL (Star Schema) -> dbt (Staging + Marts) -> Airflow Orchestration -> S3 Data Lake`
 
-```bash
-Raw Data → PostgreSQL → dbt → Airflow → AWS S3 → Analytics
+## Tech Stack
+
+- Python 3.13
+- PostgreSQL 15
+- Apache Airflow 2.9.3 (CeleryExecutor + Redis)
+- dbt-postgres
+- Docker + Docker Compose
+- AWS S3 (Parquet export)
+
+## Project Structure
+
+```text
+.
+├── dags/                 # Airflow DAG(s)
+├── dbt/                  # dbt project (staging + marts models)
+├── demo/                 # Demo screenshots
+├── docker/               # Dockerfile + docker-compose + pgAdmin server config template
+├── scripts/              # Data generators, loaders, pipeline tasks, S3 export logic
+├── sql/                  # Database bootstrap schema
+├── pyproject.toml        # Python dependencies (uv/pip)
+└── README.md
 ```
 
----
+## Data Model
 
-## 🛠️ Tech Stack
+- Fact table: `fact_orders`
+- Dimension tables: `dim_customers`, `dim_products`, `dim_dates`, `dim_locations`
+- dbt marts: `monthly_sales`, `revenue_by_category`, `top_customers_by_region`
 
-| Layer            | Tool            | Status |
-| ---------------- | --------------- | ------ |
-| Database         | PostgreSQL 15   | ✅     |
-| Containerization | Docker          | ✅     |
-| Data Generation  | Python + Faker  | ✅     |
-| Transformation   | dbt             | ✅     |
-| Orchestration    | Airflow         | ✅     |
-| Cloud            | AWS S3 + Athena | 🔄     |
-| Streaming        | Kafka           | 🔄     |
+## Pipeline Flow
 
----
+The Airflow DAG `ecommerce_gen_data` runs daily:
 
-## 🚀 Quick Start
+1. Generate and load dimensions (`locations`, `dates`, `products`)
+2. Generate and load `customers`
+3. Generate and load `orders`
+4. Run `dbt run`
+5. Run `dbt test`
+6. Export marts to S3 as Parquet
 
-### 1. Clone & setup
+S3 output path pattern:
+
+`lake/{dataset}/year=YYYY/month=MM/day=DD/{dataset}.parquet`
+
+## Prerequisites
+
+- Docker + Docker Compose
+- Python 3.13
+- `uv` (recommended) or `pip`
+- AWS credentials with S3 write access (for export tasks)
+
+## Setup
+
+1. Clone the repository and move into it.
+2. Create required config files:
 
 ```bash
-git clone https://github.com/Ajay1812/VaultFlow.git
-cd VaultFlow
-cp .env.example .env          # fill in credentials
+cp .env.example .env
 cp docker/servers.json.example docker/servers.json
+cp dbt/profiles.yml.example dbt/profiles.yml
 ```
 
-### 2. Start containers
+3. Update `.env` with all required keys:
 
 ```bash
-# Always run from project root!
-# docker-compose -f docker/docker-compose.yml --env-file .env down
-# docker-compose -f docker/docker-compose.yml build --no-cache
-docker-compose -f docker/docker-compose.yml --env-file .env up -d
+# Postgres
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=vault_db
+DB_USER=your_user
+DB_PASSWORD=your_password
+
+# pgAdmin
+PGADMIN_DEFAULT_EMAIL=admin@admin.com
+PGADMIN_DEFAULT_PASSWORD=your_password
+
+# Airflow metadata DB + admin user
+AIRFLOW_DB=airflow
+AIRFLOW_USER=airflow
+AIRFLOW_PASSWORD=your_password
+AIRFLOW_FIRSTNAME=Admin
+AIRFLOW_LASTNAME=User
+AIRFLOW_EMAIL=admin@admin.com
+AIRFLOW_FERNET_KEY=your_fernet_key
+AIRFLOW_SECRET_KEY=your_secret_key
+
+# AWS
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=ap-south-1
+S3_BUCKET_NAME=your_bucket_name
 ```
 
-### 3. Python environment
+## Run With Docker
+
+Start all services:
 
 ```bash
-uv venv && source .venv/bin/activate
+docker compose -f docker/docker-compose.yml --env-file .env up -d
+```
+
+Useful URLs:
+
+- Airflow: `http://localhost:8081`
+- pgAdmin: `http://localhost:8080`
+
+## Local dbt Commands (Optional)
+
+Use local target from `dbt/profiles.yml` (`localhost:5433`):
+
+```bash
+uv venv
+source .venv/bin/activate
 uv sync
+
+uv run dbt run --project-dir dbt --profiles-dir dbt --target local
+uv run dbt test --project-dir dbt --profiles-dir dbt --target local
 ```
 
-### 4. Load data
+dbt docs:
 
 ```bash
-python scripts/load_data.py
+uv run dbt docs generate --project-dir dbt --profiles-dir dbt --target local
+uv run dbt docs serve --project-dir dbt --profiles-dir dbt --port 8082
 ```
 
-### 5. Run dbt
+Then open `http://localhost:8082`.
 
-```bash
-uv run dbt run       # build models
-uv run dbt test      # run 14 data quality tests
-```
+## Demo
 
-### 6. View docs & lineage
+### Airflow DAG Run
 
-```bash
-uv run dbt docs generate
-uv run dbt docs serve --port 9000
-# open http://localhost:9000
-```
+![Airflow DAG Graph](demo/dag.png)
 
-### 7. pgAdmin UI
+### dbt Model Docs
 
-```bash
-http://localhost:8080
-```
-
-### 7. Airflow UI
-
-```bash
-http://localhost:8081
-```
-
----
-
-## 📊 Data Model
-
-**Fact Table:** `fact_orders`
-
-**Dimensions:** `dim_customers` | `dim_products` | `dim_dates` | `dim_locations`
-
----
-
-## 📁 Project Structure
-
-| Folder            | Purpose                      |
-| ----------------- | ---------------------------- |
-| `docker/`         | Docker + pgAdmin config      |
-| `models/staging/` | Bronze layer — raw views     |
-| `models/marts/`   | Gold layer — business tables |
-| `scripts/`        | OOPs data pipeline           |
-| `sql/`            | Schema + queries             |
-| `tests/`          | Custom dbt tests             |
-| `dags/`           | Airflow DAGs (coming)        |
-
----
-
-## 🗺️ Roadmap
-
-- [x] Star schema design
-- [x] OOPs data pipeline + logging
-- [x] Docker setup
-- [x] dbt models + tests + lineage
-- [x] Airflow orchestration
-- [ ] AWS S3 + Athena
-- [ ] Kafka streaming
-- [ ] Terraform IaC
-
----
-
-## 👨‍💻 Author
-
-**Ajay** — Data Engineering
+![dbt monthly_sales model](demo/dbt_1.png)
+![dbt revenue_by_category model](demo/dbt_2.png)
+![dbt top_customers_by_region model](demo/dbt_3.png)
