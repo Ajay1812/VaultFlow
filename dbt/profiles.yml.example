@@ -1,0 +1,23 @@
+VaultFlow:
+  target: dev
+  config:
+    send_anonymous_usage_stats: false
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DB_HOST') }}"
+      user: "{{ env_var('DB_USER') }}"
+      password: "{{ env_var('DB_PASSWORD') }}"
+      port: 5432
+      dbname: "{{ env_var('DB_NAME') }}"
+      schema: public
+      threads: 4
+    local:
+      type: postgres
+      host: localhost
+      user: "{{ env_var('DB_USER') }}"
+      password: "{{ env_var('DB_PASSWORD') }}"
+      port: 5433
+      dbname: "{{ env_var('DB_NAME') }}"
+      schema: public
+      threads: 4

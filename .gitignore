@@ -15,3 +15,9 @@ docker/servers.json
 
 target/
 dbt_packages/
+
+dbt/profiles.yml
+dbt/.user.ymldbt/target/
+dbt/dbt_packages/
+dbt/.user.yml
+dbt/logs/
